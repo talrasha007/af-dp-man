@@ -17,12 +17,17 @@
 	},
 	"observability": {
 		"enabled": true
-	}
-	/**
-	 * Smart Placement
-	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
-	 */
-	// "placement": {  "mode": "smart" }
+	},
+	"placement": {
+		"mode": "smart"
+	},
+	"d1_databases": [
+		{
+			"binding": "PB_DB",
+			"database_name": "dhgate_pb",
+			"database_id": "3e943d8b-8cca-4d2f-a8b6-765b2db71872"
+		}
+	],
 	/**
 	 * Bindings
 	 * Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including
