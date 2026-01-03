@@ -33,3 +33,12 @@ CREATE TABLE permission (
     account VARCHAR(50) PRIMARY KEY,
     permissions TEXT NOT NULL
 );
+
+DROP TABLE IF EXISTS account;
+CREATE TABLE account (
+    account VARCHAR(50) PRIMARY KEY,
+    email VARCHAR(100) NOT NULL,
+    api_key VARCHAR(100) NOT NULL,
+    api_secret VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
