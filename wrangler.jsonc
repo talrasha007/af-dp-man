@@ -21,6 +21,9 @@
 	"placement": {
 		"mode": "smart"
 	},
+  "browser": {
+    "binding": "MYBROWSER"
+  },	
 	"d1_databases": [
 		{
 			"binding": "PB_DB",

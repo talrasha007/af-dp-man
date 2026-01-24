@@ -12,6 +12,7 @@
 	},
 	"dependencies": {
 		"@astrojs/cloudflare": "^12.6.12",
+		"@cloudflare/puppeteer": "^1.0.5",
 		"astro": "^5.16.6"
 	},
 	"devDependencies": {
