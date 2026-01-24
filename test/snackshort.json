@@ -1,0 +1,9 @@
+{
+  "url": "https://go.moboboost.com/d/1281274534",
+  "proxy": {
+    "url": "http://127.0.0.1:19828"
+  },
+  "click": ".main-btn.page-B.watch-button",
+  "device": "iPhone X",
+  "prefix": "https://snackshow.onelink.me"
+}
