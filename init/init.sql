@@ -42,3 +42,37 @@ CREATE TABLE account (
     api_secret VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+DROP TABLE IF EXISTS tasks;
+CREATE TABLE tasks (
+    app_id    VARCHAR(50) PRIMARY KEY,
+    app_name  VARCHAR(100),
+    countries JSON,
+    proxy     TEXT,
+    
+    send_page_view  BOOLEAN,
+    use_page_view   BOOLEAN,
+    page_click      VARCHAR(255),
+    page_click_rate INT,
+    prefix          VARCHAR(50),
+
+    click_duration INT,
+    click_ratio    FLOAT
+);
+
+DROP TABLE IF EXISTS task_items;
+CREATE TABLE task_items (
+    task_id         VARCHAR(50),
+    deep_link_value TEXT,
+    custom_params   JSON,
+
+    weight            INT,
+    page_url          TEXT,
+    impact_url        TEXT,
+    redirect_until    TEXT,
+    item_name         VARCHAR(255),
+    use_impact_return BOOLEAN,
+    use_impact_click  BOOLEAN
+);
+
+CREATE INDEX idx_task_items_task_id ON task_items(task_id);
