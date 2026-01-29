@@ -67,8 +67,8 @@ DROP TABLE IF EXISTS task_items;
 CREATE TABLE task_items (
     id              VARCHAR(50) PRIMARY KEY,
     disabled        BOOLEAN DEFAULT FALSE,
-    
     task_id         VARCHAR(50),
+
     deep_link_value TEXT,
     custom_params   JSON,
 

@@ -32,8 +32,8 @@ declare namespace PB_DB {
   interface TaskItems {
     id: string;
     disabled: boolean;
-
     task_id: string;
+
     deep_link_value: string;
     custom_params: CustomParams | string;
 
