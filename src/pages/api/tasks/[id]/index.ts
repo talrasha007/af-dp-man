@@ -9,7 +9,7 @@ export const GET: APIRoute = async ({ params, locals: { runtime: { env: { PB_DB 
 
   const itemsSql = 'SELECT * FROM task_items WHERE task_id = ?';
   const taskItems = await PB_DB.prepare(itemsSql).bind(params.id).all();
-  return Response.json({ ...task, disabled: !!task.disabled, clicks: taskItems.results });
+  return Response.json({ ...task, disabled: !!task.disabled, clicks: taskItems.results.map(item => ({ ...item, disabled: !!item.disabled })) });
 };
 
 export const PUT: APIRoute = async ({ params, request, locals: { runtime: { env: { PB_DB } } } }) => {
