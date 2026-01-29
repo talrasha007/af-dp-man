@@ -59,7 +59,7 @@ const defaultCustomParams = (): CustomParams => ({
 });
 
 const createItem = (): TaskItem => ({
-  id: `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+  id: crypto.randomUUID(),
   disabled: false,
   task_id: form.value.app_id,
   deep_link_value: '',
@@ -264,8 +264,8 @@ onMounted(fetchTask);
                 <n-button tertiary type="error" @click="removeItem(index)">删除</n-button>
               </div>
 
-              <n-form-item label="条目 ID">
-                <n-input v-model:value="item.id" placeholder="id" />
+              <n-form-item label="条目名称">
+                <n-input v-model:value="item.item_name" placeholder="item_name" />
               </n-form-item>
 
               <n-form-item label="禁用">
@@ -290,10 +290,6 @@ onMounted(fetchTask);
 
               <n-form-item label="重定向截止">
                 <n-input v-model:value="item.redirect_until" placeholder="redirect_until" />
-              </n-form-item>
-
-              <n-form-item label="条目名称">
-                <n-input v-model:value="item.item_name" placeholder="item_name" />
               </n-form-item>
 
               <n-form-item label="使用回跳">
