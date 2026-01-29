@@ -148,7 +148,7 @@ const saveTask = async () => {
       })),
     };
 
-    const response = await fetch('/api/tasks', {
+    const response = await fetch('/api/tasks/' + form.value.app_id.trim(), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
