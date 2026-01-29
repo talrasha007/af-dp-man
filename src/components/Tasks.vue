@@ -90,7 +90,7 @@ onMounted(fetchTasks);
             :href="`/tasks/${task.app_id}`"
           >
             <n-avatar :src="task.icon_url" size="large" class="task-icon">
-              {{ (task.app_name || '?').slice(0, 1) }}
+              <span v-if="!task.icon_url">{{ (task.app_name || '?').slice(0, 1) }}</span>
             </n-avatar>
             <div class="task-name">
               {{ task.app_name || '未命名任务' }}
