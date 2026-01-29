@@ -73,7 +73,7 @@ onMounted(fetchTasks);
       <div class="tasks-title">任务列表</div>
       <n-space align="center">
         <n-button :loading="loading" secondary @click="fetchTasks">刷新</n-button>
-        <n-button type="primary" tag="a" href="/tasks/[new]">添加任务</n-button>
+        <n-button type="primary" tag="a" href="/tasks/new">添加任务</n-button>
       </n-space>
     </div>
 
