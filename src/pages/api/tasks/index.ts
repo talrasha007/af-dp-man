@@ -38,7 +38,18 @@ export const GET: APIRoute = async ({ url, locals: { runtime: { env: { PB_DB } }
 
               item.use_impact_return = !!item.use_impact_return;
               item.use_impact_click = !!item.use_impact_click;
-              item.custom_params = JSON.parse(item.custom_params as string);
+
+              for (const key of Object.keys(item)) {
+                if (!item[key]) delete item[key];
+              }
+
+              const cp = JSON.parse(item.custom_params as string);
+              if (Object.keys(cp).every(key => !cp[key])) {
+                delete item.custom_params;
+              } else {
+                item.custom_params = cp;
+              }
+
               return item;
             })
         };
