@@ -27,8 +27,7 @@ export const GET: APIRoute = async ({ url, locals: { runtime: { env: { MYBROWSER
   await browser.disconnect();
 
   if (url.searchParams.get('json') === 'true') {
-    const metrics = await page.metrics();
-    return Response.json({ metrics, html, headers: resp?.headers() });
+    return Response.json({ html, headers: resp?.headers() });
   } else {
     return new Response(html, { headers: resp?.headers() });
   }
