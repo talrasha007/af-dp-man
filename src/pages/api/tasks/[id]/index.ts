@@ -2,7 +2,9 @@ import type { APIRoute } from 'astro';
 
 import { dbToTask, dbToClicks } from '../../../../utils/data';
 
-export const GET: APIRoute = async ({ params, locals: { runtime: { env: { PB_DB } } } }) => {
+export const GET: APIRoute = async ({ url, params, locals: { runtime: { env: { PB_DB } } } }) => {
+  const active = url.searchParams.get('active') === 'true';
+
   const taskSql = 'SELECT * FROM tasks WHERE app_id = ?';
   const task = await PB_DB.prepare(taskSql).bind(params.id).first();
   if (!task) {
@@ -11,10 +13,12 @@ export const GET: APIRoute = async ({ params, locals: { runtime: { env: { PB_DB 
 
   const itemsSql = 'SELECT * FROM task_items WHERE task_id = ?';
   const taskItems = await PB_DB.prepare(itemsSql).bind(params.id).all();
-  return Response.json({
-    ...dbToTask(task, true),
-    clicks: dbToClicks(taskItems.results, false)
-  });
+  const ret = {
+    ...dbToTask(task, active),
+    clicks: dbToClicks(taskItems.results.filter(item => !active || !item.disabled), active)
+  };
+
+  return Response.json(active ? [ret] : ret);
 };
 
 export const PUT: APIRoute = async ({ params, request, locals: { runtime: { env: { PB_DB } } } }) => {
