@@ -3,7 +3,7 @@ import type { APIRoute } from 'astro';
 import { dbToTask, dbToClicks } from '../../../utils/data';
 
 export const GET: APIRoute = async ({ url, locals: { runtime: { env: { PB_DB } } } }) => {
-  const active = url.searchParams.get('active');
+  const active = url.searchParams.get('active') || url.searchParams.get('actived');
 
   const sql = 'SELECT * FROM tasks';
   const tasks = await PB_DB.prepare(sql).all();
