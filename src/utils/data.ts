@@ -23,6 +23,8 @@ function tidyObject(obj: Record<string, unknown>) {
   for (const key of Object.keys(obj)) {
     if (!obj[key]) delete obj[key];
   }
+
+  return obj;
 }
 
 export function dbToClicks(items: Record<string, unknown>[], tidy: boolean = false): any[] {
