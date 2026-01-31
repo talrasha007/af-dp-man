@@ -2,15 +2,6 @@ import type { APIRoute } from 'astro';
 
 import { dbToTask, dbToClicks } from '../../../utils/data';
 
-function parseProxy(proxy: string) {
-  const match = proxy.match(/^(https?:\/\/)([^:]+):([^@]+)@(.+)$/);
-  if (!match) {
-    return { url: proxy };
-  }
-  const [, protocol, username, password, host] = match;
-  return { username, password, url: `${protocol}${host}` };
-}
-
 export const GET: APIRoute = async ({ url, locals: { runtime: { env: { PB_DB } } } }) => {
   const actived = url.searchParams.get('actived');
 
