@@ -1,0 +1,387 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Postman">
+	<main class="page">
+		<section class="card">
+			<header class="card__header">
+				<h1>Postman Lite</h1>
+				<div class="inline">
+					<label class="label">URL</label>
+					<input id="url-input" type="text" placeholder="https://example.com/path?deep_link_value=foo" />
+					<button id="load-btn" class="ghost">解析参数</button>
+				</div>
+			</header>
+
+			<div class="tabs">
+				<button class="tab active" data-target="params-panel">Params</button>
+				<button class="tab" data-target="headers-panel">Headers</button>
+			</div>
+
+			<div class="panel" id="params-panel">
+				<div class="panel__head">
+					<div class="muted">URL 里的 query 会自动拉平到这里，可继续编辑 / 新增</div>
+					<button id="add-param" class="ghost">新增 kv</button>
+				</div>
+				<div class="rows" id="params-rows"></div>
+				<datalist id="param-key-suggestions">
+					<option value="deep_link_value"></option>
+					<option value="deep_link_sub"></option>
+				</datalist>
+			</div>
+
+			<div class="panel hidden" id="headers-panel">
+				<div class="panel__head">
+					<div class="muted">User-Agent 默认取 URL 的 af_ua，可切换或补全常用 UA</div>
+					<button id="add-header" class="ghost">新增 header</button>
+				</div>
+				<div class="rows" id="headers-rows"></div>
+				<datalist id="ua-suggestions">
+					<option value="Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1"></option>
+					<option value="Mozilla/5.0 (Linux; Android 13; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.134 Mobile Safari/537.36"></option>
+					<option value="Mozilla/5.0 (AppleTV11,1; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 AppleTV/17.0"></option>
+					<option value="Mozilla/5.0 (Linux; Android 12; BRAVIA 4K UR3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.134 Safari/537.36"></option>
+				</datalist>
+			</div>
+
+			<div class="options">
+				<label><input type="checkbox" id="return-headers" checked /> 返回 headers</label>
+				<label><input type="checkbox" id="return-html" checked /> 返回 html</label>
+			</div>
+
+			<div class="actions">
+				<button id="send-btn">Send</button>
+				<div id="status" class="muted"></div>
+			</div>
+		</section>
+
+		<section class="card">
+			<header class="card__header">
+				<h2>Response (pretty JSON)</h2>
+			</header>
+			<pre id="response-box" class="response"></pre>
+		</section>
+	</main>
+</Layout>
+
+<style>
+	:root {
+		--border: #e3e5ea;
+		--bg: #f8f9fb;
+		--text: #1f2933;
+		--muted: #6b7280;
+		--accent: #2563eb;
+	}
+	body {
+		font-family: 'SF Pro Display', 'Inter', system-ui, -apple-system, sans-serif;
+		background: linear-gradient(120deg, #f5f7fb 0%, #eef2ff 100%);
+		color: var(--text);
+	}
+	.page {
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 12px 20px 32px;
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+	}
+	.card {
+		background: white;
+		border: 1px solid var(--border);
+		box-shadow: 0 12px 40px rgba(31, 41, 55, 0.06);
+		border-radius: 12px;
+		padding: 14px 16px 18px;
+	}
+	.card__header {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		justify-content: space-between;
+		margin-bottom: 12px;
+	}
+	h1,
+	h2 {
+		margin: 0;
+		font-size: 18px;
+	}
+	.inline {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+	}
+	.label {
+		font-size: 13px;
+		color: var(--muted);
+	}
+	input[type='text'] {
+		flex: 1;
+		padding: 10px 12px;
+		border: 1px solid var(--border);
+		border-radius: 8px;
+		font-size: 14px;
+	}
+	.tabs {
+		display: flex;
+		gap: 4px;
+		margin-bottom: 10px;
+	}
+	.tab {
+		border: 1px solid var(--border);
+		border-bottom: none;
+		background: var(--bg);
+		padding: 8px 14px;
+		border-radius: 8px 8px 0 0;
+		cursor: pointer;
+		font-size: 13px;
+	}
+	.tab.active {
+		background: white;
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+	.panel {
+		border: 1px solid var(--accent);
+		border-radius: 0 8px 8px 8px;
+		padding: 10px 10px 6px;
+	}
+	.panel.hidden {
+		display: none;
+	}
+	.panel__head {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 8px;
+	}
+	.rows {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+	.row {
+		display: grid;
+		grid-template-columns: 1fr 1fr auto;
+		gap: 8px;
+	}
+	.row input {
+		width: 100%;
+	}
+	.row button {
+		width: 38px;
+	}
+	.options,
+	.actions {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin-top: 10px;
+	}
+	button {
+		border: none;
+		background: var(--accent);
+		color: white;
+		padding: 10px 14px;
+		border-radius: 8px;
+		cursor: pointer;
+		font-size: 14px;
+	}
+	button.ghost {
+		background: transparent;
+		color: var(--accent);
+		border: 1px solid var(--accent);
+	}
+	button:hover {
+		filter: brightness(0.97);
+	}
+	.muted {
+		color: var(--muted);
+		font-size: 12px;
+	}
+	.response {
+		min-height: 240px;
+		background: #0b1021;
+		color: #e5e7eb;
+		border-radius: 10px;
+		padding: 12px;
+		overflow: auto;
+		font-size: 13px;
+	}
+	@media (max-width: 768px) {
+		.row {
+			grid-template-columns: 1fr;
+		}
+		.card__header {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+		.inline {
+			flex-direction: column;
+		}
+		input[type='text'] {
+			width: 100%;
+		}
+	}
+</style>
+
+<script>
+	const urlInput = document.getElementById('url-input');
+	const loadBtn = document.getElementById('load-btn');
+	const paramsRows = document.getElementById('params-rows');
+	const headersRows = document.getElementById('headers-rows');
+	const addParamBtn = document.getElementById('add-param');
+	const addHeaderBtn = document.getElementById('add-header');
+	const tabs = Array.from(document.querySelectorAll('.tab'));
+	const panels = {
+		params: document.getElementById('params-panel'),
+		headers: document.getElementById('headers-panel'),
+	};
+	const sendBtn = document.getElementById('send-btn');
+	const statusEl = document.getElementById('status');
+	const responseBox = document.getElementById('response-box');
+	const returnHeaders = document.getElementById('return-headers');
+	const returnHtml = document.getElementById('return-html');
+
+	const uaSuggestionId = 'ua-suggestions';
+	const paramKeySuggestionId = 'param-key-suggestions';
+
+	function ensureProtocol(raw) {
+		if (!raw) return '';
+		return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+	}
+
+	function createRow(container, key = '', value = '', opts = {}) {
+		const row = document.createElement('div');
+		row.className = 'row';
+
+		const keyInput = document.createElement('input');
+		keyInput.type = 'text';
+		keyInput.placeholder = 'key';
+		if (opts.keyListId) keyInput.setAttribute('list', opts.keyListId);
+		keyInput.value = key;
+		keyInput.name = opts.nameKey || 'key';
+		if (opts.readonlyKey) keyInput.readOnly = true;
+		if (opts.dataAttr) row.dataset[opts.dataAttr] = 'true';
+
+		const valueInput = document.createElement('input');
+		valueInput.type = 'text';
+		valueInput.placeholder = 'value';
+		valueInput.value = value;
+		valueInput.name = opts.nameValue || 'value';
+		if (opts.valueListId) valueInput.setAttribute('list', opts.valueListId);
+
+		const removeBtn = document.createElement('button');
+		removeBtn.type = 'button';
+		removeBtn.textContent = '✕';
+		removeBtn.className = 'ghost';
+		removeBtn.onclick = () => row.remove();
+		if (opts.disableRemove) {
+			removeBtn.disabled = true;
+			removeBtn.style.visibility = 'hidden';
+		}
+
+		row.append(keyInput, valueInput, removeBtn);
+		container.appendChild(row);
+		return { row, keyInput, valueInput };
+	}
+
+	function setUa(value) {
+		const uaRow = headersRows.querySelector('[data-ua="true"] input[name="header-value"]');
+		if (uaRow) uaRow.value = value;
+	}
+
+	function loadParamsFromUrl() {
+		const normalized = ensureProtocol(urlInput.value.trim());
+		if (!normalized) return;
+		try {
+			const u = new URL(normalized);
+			paramsRows.innerHTML = '';
+			u.searchParams.forEach((v, k) => createRow(paramsRows, k, v, { keyListId: paramKeySuggestionId, nameKey: 'param-key', nameValue: 'param-value' }));
+			const ua = u.searchParams.get('af_ua');
+			if (ua) setUa(ua);
+		} catch (err) {
+			statusEl.textContent = 'URL 解析失败，请检查格式';
+		}
+	}
+
+	function collectRows(container, keyName, valueName) {
+		const entries = [];
+		container.querySelectorAll('.row').forEach((row) => {
+			const key = row.querySelector(`input[name="${keyName}"]`)?.value.trim();
+			const val = row.querySelector(`input[name="${valueName}"]`)?.value;
+			if (key) entries.push([key, val ?? '']);
+		});
+		return entries;
+	}
+
+	function buildUrl() {
+		const normalized = ensureProtocol(urlInput.value.trim());
+		if (!normalized) throw new Error('URL 不能为空');
+		const u = new URL(normalized);
+		u.search = '';
+		collectRows(paramsRows, 'param-key', 'param-value').forEach(([k, v]) => u.searchParams.append(k, v));
+		return u.toString();
+	}
+
+	async function send() {
+		statusEl.textContent = '发送中...';
+		sendBtn.disabled = true;
+		try {
+			const url = buildUrl();
+			const headerPairs = collectRows(headersRows, 'header-key', 'header-value');
+			const ua = (headerPairs.find(([k]) => k.toLowerCase() === 'user-agent') || [])[1];
+			const payload = {
+				url,
+				ua: ua || undefined,
+				returnHeaders: returnHeaders.checked,
+				returnHtml: returnHtml.checked,
+			};
+
+			const resp = await fetch('/api/browser', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
+			});
+
+			if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+			const data = await resp.json();
+			responseBox.textContent = JSON.stringify(data, null, 2);
+			statusEl.textContent = '完成';
+		} catch (err) {
+			statusEl.textContent = err.message || '发送失败';
+		} finally {
+			sendBtn.disabled = false;
+		}
+	}
+
+	function init() {
+		// default rows
+		createRow(headersRows, 'User-Agent', '', {
+			nameKey: 'header-key',
+			nameValue: 'header-value',
+			valueListId: uaSuggestionId,
+			dataAttr: 'ua',
+			disableRemove: true,
+		});
+
+		addParamBtn.onclick = () => createRow(paramsRows, '', '', { keyListId: paramKeySuggestionId, nameKey: 'param-key', nameValue: 'param-value' });
+		addHeaderBtn.onclick = () => createRow(headersRows, '', '', { nameKey: 'header-key', nameValue: 'header-value' });
+
+		loadBtn.onclick = loadParamsFromUrl;
+		urlInput.addEventListener('change', loadParamsFromUrl);
+
+		tabs.forEach((tab) => {
+			tab.onclick = () => {
+				tabs.forEach((t) => t.classList.remove('active'));
+				tab.classList.add('active');
+				panels.params.classList.toggle('hidden', tab.dataset.target !== 'params-panel');
+				panels.headers.classList.toggle('hidden', tab.dataset.target !== 'headers-panel');
+			};
+		});
+
+		sendBtn.onclick = send;
+	}
+
+	document.addEventListener('DOMContentLoaded', init);
+</script>
