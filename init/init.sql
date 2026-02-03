@@ -83,14 +83,14 @@ CREATE TABLE task_items (
 
 CREATE INDEX idx_task_items_task_id ON task_items(task_id);
 
-DROP TABLE IF EXISTS app;
-CREATE TABLE app (
+DROP TABLE IF EXISTS apps;
+CREATE TABLE apps (
     app_id    VARCHAR(50) PRIMARY KEY,
     app_name  VARCHAR(100),
     dev_key   VARCHAR(100)
 );
 
-INSERT INTO app (app_id, app_name, dev_key) VALUES
+INSERT INTO apps (app_id, app_name, dev_key) VALUES
     ('com.dhgate.buyermob', 'DHgate', 'wAueXqnTbMD65NFK9TsKS7'),
     ('id905869418', 'DHgate', 'wAueXqnTbMD65NFK9TsKS7'),
     ('id1488296980', 'Bybit', '4zHVm78oXAwhdzUHGdMLG5'),
