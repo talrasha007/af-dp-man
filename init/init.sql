@@ -96,7 +96,7 @@ INSERT INTO apps (app_id, app_name, dev_key) VALUES
     ('id1488296980', 'Bybit', '4zHVm78oXAwhdzUHGdMLG5'),
     ('id1327268470', 'Okx', '72dSCzRabQdYPRkgKNdcDf'),
     ('id1436799971', 'Binance', 'eLMsxedcvJSiwQHyd362JT'),
-    ('id835599320', 'Pizza Hut', 'XY8Lpakui8g4kBcposRgxA'),
+    ('id835599320', 'Tiktok', 'XY8Lpakui8g4kBcposRgxA'),
     ('id1170055821', 'Phone Pe', 'R2PcxTzKKaWVyMakREG6X9'),
     ('id1294998195', 'Gate IO', 'QVwwgUkb2zTuorMkekmprA'),
     ('id1537797105', 'Melbet', 'zDyQGBL6mnJ2QDFTjAQT36');
