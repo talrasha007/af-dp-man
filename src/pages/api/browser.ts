@@ -53,11 +53,15 @@ type BrowserRequestOptions = {
   prefix?: string;
   returnMetrics?: boolean;
   returnHtml?: boolean;
+  returnJson?: boolean;
+  returnHeaders?: boolean;
 };
 
 type BrowserResponse = {
   metrics?: Metrics;
-  html?: string;
+  headers?: Record<string, string>;
+  json?:    any;
+  html?:    string;
   matches?: string[];
 }
 
@@ -110,6 +114,8 @@ export const POST: APIRoute = async ({ request, locals: { runtime: { env: { MYBR
   const resp = await page.goto(opt.url, { waitUntil: "networkidle2" });
   if (opt.returnMetrics) { ret.metrics = await page.metrics(); }
   if (opt.returnHtml) { ret.html = await resp?.text(); }
+  if (opt.returnJson) ret.json = await resp?.json();
+  if (opt.returnHeaders) ret.headers = resp?.headers();
 
   if (opt.click) {
     // console.log('    Clicking on:', opt.click);
