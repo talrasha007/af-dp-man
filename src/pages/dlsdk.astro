@@ -152,6 +152,15 @@ import Layout from '../layouts/Layout.astro';
       }
     };
 
+    const applyZeroGuid = (input) => {
+      if (!input) return;
+      input.addEventListener('blur', () => {
+        if (input.value.trim() === '00') {
+          input.value = '00000000-0000-0000-0000-000000000000';
+        }
+      });
+    };
+
     const sendRequest = async () => {
       const appId = appInput.value.trim();
       if (!appId) {
@@ -203,6 +212,9 @@ import Layout from '../layouts/Layout.astro';
         suggestions.innerHTML = '';
       }, 120);
     });
+
+    applyZeroGuid(idfaInput);
+    applyZeroGuid(gaidInput);
 
     sendBtn.addEventListener('click', sendRequest);
 
