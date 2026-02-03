@@ -352,6 +352,14 @@ import Layout from '../layouts/Layout.astro';
 		return u.toString();
 	}
 
+	function syncUrlField() {
+		try {
+			urlInput.value = buildUrl();
+		} catch {
+			/* ignore invalid url while typing */
+		}
+	}
+
 	async function send(): Promise<void> {
 		statusEl.textContent = '发送中...';
 		sendBtn.disabled = true;
@@ -405,6 +413,7 @@ import Layout from '../layouts/Layout.astro';
 
 		loadBtn.onclick = loadParamsFromUrl;
 		urlInput.addEventListener('change', loadParamsFromUrl);
+		paramsRows.addEventListener('focusout', syncUrlField);
 
 		tabs.forEach((tab) => {
 			tab.onclick = () => {
