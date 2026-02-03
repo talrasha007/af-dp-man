@@ -26,11 +26,11 @@ import Layout from '../layouts/Layout.astro';
           <input id="ipInput" type="text" placeholder="1.2.3.4" />
         </div>
         <div class="field ios-only">
-          <label for="idfaInput">IDFA</label>
+          <label for="idfaInput">IDFA (可选)</label>
           <input id="idfaInput" type="text" placeholder="iOS IDFA" />
         </div>
         <div class="field android-only">
-          <label for="gaidInput">GAID</label>
+          <label for="gaidInput">GAID (可选)</label>
           <input id="gaidInput" type="text" placeholder="Android GAID" />
         </div>
         <div class="field android-only">
@@ -280,15 +280,18 @@ import Layout from '../layouts/Layout.astro';
   }
 
   label {
+    display: block;
     font-size: 13px;
     font-weight: 600;
   }
 
   input {
+    width: 100%;
     border: 1px solid #e5e7eb;
     border-radius: 10px;
     padding: 10px 12px;
     font-size: 14px;
+    box-sizing: border-box;
   }
 
   .grid {
