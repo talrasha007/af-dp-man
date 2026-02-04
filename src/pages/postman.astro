@@ -60,6 +60,11 @@ import Layout from '../layouts/Layout.astro';
 				<label><input type="checkbox" id="return-html" checked /> 返回 html</label>
 			</div>
 
+			<div class="inline field">
+				<label class="label">Proxy</label>
+				<input id="proxy-input" type="text" placeholder="http://user:pass@host:port 或 http://host:port" />
+			</div>
+
 			<div class="actions">
 				<button id="send-btn">Send</button>
 				<div id="status" class="muted"></div>
@@ -236,6 +241,8 @@ import Layout from '../layouts/Layout.astro';
 </style>
 
 <script>
+	import { parseProxy } from '../utils/data';
+
 	type RowOptions = {
 		keyListId?: string;
 		valueListId?: string;
@@ -262,6 +269,7 @@ import Layout from '../layouts/Layout.astro';
 	const responseBox = document.getElementById('response-box') as HTMLPreElement;
 	const returnHeaders = document.getElementById('return-headers') as HTMLInputElement;
 	const returnHtml = document.getElementById('return-html') as HTMLInputElement;
+	const proxyInput = document.getElementById('proxy-input') as HTMLInputElement;
 
 	const uaSuggestionId = 'ua-suggestions';
 	const paramKeySuggestionId = 'param-key-suggestions';
@@ -369,11 +377,13 @@ import Layout from '../layouts/Layout.astro';
 			const url = buildUrl();
 			const headerPairs = collectRows(headersRows, 'header-key', 'header-value');
 			const ua = headerPairs.find(([k]) => k.toLowerCase() === 'user-agent')?.[1];
+			const proxyRaw = proxyInput.value.trim();
 			const payload = {
 				url,
 				ua: ua || undefined,
 				returnHeaders: returnHeaders.checked,
 				returnHtml: returnHtml.checked,
+				proxy: proxyRaw ? parseProxy(proxyRaw) : undefined,
 			};
 
 			const resp = await fetch('/api/browser', {
