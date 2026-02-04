@@ -1,5 +1,5 @@
 
-function parseProxy(proxy: string) {
+export function parseProxy(proxy: string) {
   const match = proxy.match(/^(https?:\/\/)([^:]+):([^@]+)@(.+)$/);
   if (!match) {
     return { url: proxy };
