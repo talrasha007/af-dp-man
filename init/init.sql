@@ -91,6 +91,7 @@ CREATE TABLE apps (
 );
 
 INSERT INTO apps (app_id, app_name, dev_key) VALUES
+    ('id6462846884', 'Dreameshort', '6DqaN8YgdM2J7N8PdpXW3i'),
     ('id959841113', 'Shopee', '52exGkmASkSHeuRyuFmKeW'),
     ('id6445905219', 'DramaBox', '8fakpaYCQ4C4XGYDAyh5WH'),
     ('id6514312894', 'Flickreels', 'B2Si3mnTrbSUYD3wKgQyrT'),
