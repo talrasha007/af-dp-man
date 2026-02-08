@@ -54,8 +54,10 @@ export const PUT: APIRoute = async ({ params, request, locals: { runtime: { env:
       page_click_rate,
       prefix,
       click_duration,
-      click_ratio
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      click_ratio,
+      clicks_to_send,
+      clicks_to_clear
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(app_id) DO UPDATE SET
       app_name = excluded.app_name,
       icon_url = excluded.icon_url,
@@ -68,7 +70,9 @@ export const PUT: APIRoute = async ({ params, request, locals: { runtime: { env:
       page_click_rate = excluded.page_click_rate,
       prefix = excluded.prefix,
       click_duration = excluded.click_duration,
-      click_ratio = excluded.click_ratio
+      click_ratio = excluded.click_ratio,
+      clicks_to_send = excluded.clicks_to_send,
+      clicks_to_clear = excluded.clicks_to_clear
   `;
 
   await PB_DB.prepare(upsertTaskSql)
@@ -85,7 +89,9 @@ export const PUT: APIRoute = async ({ params, request, locals: { runtime: { env:
       task.page_click_rate ?? 0,
       task.prefix ?? '',
       task.click_duration ?? 0,
-      task.click_ratio ?? 0
+      task.click_ratio ?? 0,
+      task.clicks_to_send ?? 0,
+      task.clicks_to_clear ?? 0
     )
     .run();
 
