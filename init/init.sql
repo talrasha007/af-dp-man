@@ -59,8 +59,10 @@ CREATE TABLE tasks (
     page_click_rate INT,
     prefix          VARCHAR(50),
 
-    click_duration INT,
-    click_ratio    FLOAT
+    click_duration  INT,
+    click_ratio     FLOAT,
+    clicks_to_send  INT,
+    clicks_to_clear INT
 );
 
 DROP TABLE IF EXISTS task_items;
