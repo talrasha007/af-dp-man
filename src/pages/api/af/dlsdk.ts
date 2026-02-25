@@ -14,7 +14,7 @@ export const GET: APIRoute = async ({ url, locals: { runtime: { env: { PB_DB } }
     return new Response('App not found', { status: 404 });
   }
 
-  const isIos = app.startsWith('id');
+  const isIos = app.startsWith('id') || /^\d+$/.test(app);
   const body = {
     request_count: 1,
     lang: '',    
