@@ -77,7 +77,7 @@ import Layout from '../layouts/Layout.astro';
     let selectedApp = null;
 
     const setPlatform = (appId) => {
-      const isIos = appId && appId.startsWith('id');
+      const isIos = appId && (appId.startsWith('id') || /^\d+$/.test(appId));
       platformPill.textContent = appId
         ? isIos
           ? 'iOS'
