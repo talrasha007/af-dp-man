@@ -7,6 +7,11 @@ const users = new Map([
 ]);
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  const url = new URL(context.request.url);
+  if (url.pathname === '/api/exness') {
+    return await next();
+  }
+
   const auth = context.request.headers.get('Authorization');
   const base64 = auth && /Basic (.+)/i.exec(auth)?.[1] || '';
   const [_, user, password] = /(.+):(.+)/.exec(atob(base64)) || [];
