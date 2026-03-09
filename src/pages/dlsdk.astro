@@ -130,7 +130,7 @@ import Layout from '../layouts/Layout.astro';
       return apps
         .filter((app) =>
           app.app_id.toLowerCase().includes(keyword) ||
-          app.app_name.toLowerCase().includes(keyword)
+          app.app_name?.toLowerCase().includes(keyword)
         )
         .slice(0, 8);
     };
