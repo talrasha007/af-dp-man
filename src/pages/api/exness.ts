@@ -12,6 +12,9 @@ export const GET: APIRoute = async ({ request: { headers }, url: { searchParams 
 
   const url = new URL(originUrl);
 
+  url.searchParams.delete('agent');
+  url.searchParams.delete('af_sub3');
+
   const ifa = searchParams.get('ifa');
   if (ifa) {
     if (isIos(ua)) {
