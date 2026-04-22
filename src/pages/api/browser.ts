@@ -50,6 +50,7 @@ type BrowserRequestOptions = {
     password?: string;
   },
   click?: string;
+  click_wait?: number;
   prefix?: string;
   returnMetrics?: boolean;
   returnHtml?: boolean;
@@ -120,6 +121,10 @@ export const POST: APIRoute = async ({ request, locals: { runtime: { env: { MYBR
       if (opt.returnJson) ret.json = await resp?.json();
       if (opt.returnHeaders) ret.headers = resp?.headers();
       ret.url = resp?.url();
+
+      if (opt.click_wait) {
+        await new Promise((resolve) => setTimeout(resolve, opt.click_wait));
+      }
 
       if (opt.click) {
         // console.log('    Clicking on:', opt.click);
