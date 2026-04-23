@@ -8,7 +8,7 @@ const users = new Map([
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const url = new URL(context.request.url);
-  if (url.pathname === '/api/exness') {
+  if (url.pathname === '/api/exness' || url.pathname.startsWith('/links')) {
     return await next();
   }
 
