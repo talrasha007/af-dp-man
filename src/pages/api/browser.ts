@@ -122,12 +122,9 @@ export const POST: APIRoute = async ({ request, locals: { runtime: { env: { MYBR
       if (opt.returnHeaders) ret.headers = resp?.headers();
       ret.url = resp?.url();
 
-      if (opt.click_wait) {
-        await new Promise((resolve) => setTimeout(resolve, opt.click_wait));
-      }
-
       if (opt.click) {
         // console.log('    Clicking on:', opt.click);
+        await page.waitForSelector(opt.click, { visible: true, timeout: opt.click_wait || 5000 });
         await page.click(opt.click);
         // wait for network to be idle
         await page.waitForNavigation({ waitUntil: 'networkidle0' });
