@@ -46,7 +46,7 @@ export const GET: APIRoute = async ({ url, locals: { runtime: { env: { PB_DB } }
       'Accept': 'application/json',
       'Content-Type': 'application/json; charset=utf-8',
       'User-Agent': isIos ? `AppsFlyerSDK/6.17 (iPhone; iOS ${version || '26.1'}; Scale/3.00)` : `AppsFlyerSDK/6.17 (Android; Android ${version || '13'}; Scale/3.00)`,
-      ...(ip ? { 'X-Forwarded-For': ip } : {}),
+      // ...(ip ? { 'X-Forwarded-For': ip } : {}),
     },
   });
 }
