@@ -1,9 +1,8 @@
 import crypto from 'crypto';
 import type { APIRoute } from 'astro';
 
-function calcAfSig(devKey: string, afTimestamp: string) {
-  console.log(devKey, afTimestamp);
-  return crypto.createHmac('sha256', devKey).update(afTimestamp + devKey, 'utf8').digest('hex');
+function calcAfSig(devKey: string, afTimestamp: string, ip: string) {
+  return crypto.createHmac('sha256', devKey).update(afTimestamp + (ip || '127.0.0.1'), 'utf8').digest('hex');
 }
 
 export const GET: APIRoute = async ({ url, locals: { runtime: { env: { PB_DB } } } }) => {
@@ -14,13 +13,16 @@ export const GET: APIRoute = async ({ url, locals: { runtime: { env: { PB_DB } }
     return new Response('App not found', { status: 404 });
   }
 
+  const requestIp = ip || '127.0.0.1';
   const isIos = app.startsWith('id') || /^\d+$/.test(app);
+  const timestamp = new Date().toISOString().replace('Z', '');
   const body = {
     request_count: 1,
-    lang: '',    
+    lang: '',
     request_id: `${Date.now() - Math.round(Math.random() * 1000 * 1800)}-${1000000 + Math.round(Math.random() * 9000000)}`,
     is_first: true,
-    timestamp: new Date().toISOString().replace('Z', ''),
+    timestamp,
+    ip: requestIp,
     ...isIos ? {
       idfa: { value: idfa || '', type: 'unhashed' },
       os: version || '26.1',
@@ -33,7 +35,11 @@ export const GET: APIRoute = async ({ url, locals: { runtime: { env: { PB_DB } }
     },
   };
 
-  return await fetch(`https://bfqimj.dlsdk.appsflyersdk.com/v1.0/${isIos ? 'ios' : 'android'}/${app}?sdk_version=6.17&af_sig=${calcAfSig(devKey!.dev_key as string, body.timestamp)}`, {
+  const afSig = calcAfSig(devKey!.dev_key as string, timestamp, requestIp);
+  const endpoint = new URL(`https://dls2s.appsflyer.com/v1.0/${isIos ? 'ios' : 'android'}/${app}`);
+  endpoint.searchParams.set('af_sig', afSig);
+
+  return await fetch(endpoint.toString(), {
     method: 'POST',
     body: JSON.stringify(body),
     headers: {
