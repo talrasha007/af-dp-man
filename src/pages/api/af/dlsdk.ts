@@ -1,5 +1,17 @@
 import crypto from 'crypto';
+import { connect } from 'cloudflare:sockets';
 import type { APIRoute } from 'astro';
+
+// Worker 的 fetch() 走 CF 边缘代理，裸 IP 的 Host 会被拒 (error code: 1003)，所以走裸 TCP。
+// ponytail: 手搓 HTTP/1.1，只认 Connection: close + Content-Length 的短响应；
+// 若上游改用 chunked 或换成 https，改成给它配个域名再用 fetch()。
+async function httpGet(host: string, path: string) {
+  const socket = connect({ hostname: host, port: 80 });
+  const writer = socket.writable.getWriter();
+  await writer.write(new TextEncoder().encode(`GET ${path} HTTP/1.1\r\nHost: ${host}\r\nConnection: close\r\n\r\n`));
+  const raw = await new Response(socket.readable).text();
+  return raw.slice(raw.indexOf('\r\n\r\n') + 4);
+}
 
 function calcAfSig(devKey: string, afTimestamp: string, ip: string) {
   return crypto.createHmac('sha256', devKey).update(afTimestamp + (ip || '127.0.0.1'), 'utf8').digest('hex');
@@ -14,9 +26,10 @@ export const GET: APIRoute = async ({ url, locals: { runtime: { env: { PB_DB } }
   let devKey = (await PB_DB.prepare('SELECT dev_key FROM apps WHERE app_id IN (?, ?)').bind(app, appId).first())?.dev_key as string | undefined;
   let err: unknown;
   if (!devKey) {
-    const res = await fetch(`http://39.97.61.40/tt/ddj/dlTask!getDevKey.do?appId=${encodeURIComponent(appId)}`)
-      .then(r => r.json() as Promise<{ devKey?: string, code?: number }>)
-      .catch(e => { err = e; return null; });
+    const path = `/tt/ddj/dlTask!getDevKey.do?appId=${encodeURIComponent(appId)}`;
+    const res = await httpGet('39.97.61.40', path)
+      .then(t => JSON.parse(t) as { devKey?: string, code?: number })
+      .catch(e => { err = `${path} -> ${e}`; return null; });
     if (res?.code === 1 && res.devKey) {
       devKey = res.devKey;
       await PB_DB.prepare('INSERT OR IGNORE INTO apps (app_id, dev_key) VALUES (?, ?)').bind(appId, devKey).run();
