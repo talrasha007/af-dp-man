@@ -12,16 +12,18 @@ export const GET: APIRoute = async ({ url, locals: { runtime: { env: { PB_DB } }
   const appId = isIos ? app.replace(/^id/, '') : app; // ios: pure numeric, used for lookup/insert/getDevKey
 
   let devKey = (await PB_DB.prepare('SELECT dev_key FROM apps WHERE app_id IN (?, ?)').bind(app, appId).first())?.dev_key as string | undefined;
+  let err: unknown;
   if (!devKey) {
     const res = await fetch(`http://39.97.61.40/tt/ddj/dlTask!getDevKey.do?appId=${encodeURIComponent(appId)}`)
-      .then(r => r.json() as Promise<{ devKey?: string, code?: number }>).catch(() => null);
+      .then(r => r.json() as Promise<{ devKey?: string, code?: number }>)
+      .catch(e => { err = e; return null; });
     if (res?.code === 1 && res.devKey) {
       devKey = res.devKey;
       await PB_DB.prepare('INSERT OR IGNORE INTO apps (app_id, dev_key) VALUES (?, ?)').bind(appId, devKey).run();
     }
   }
   if (!devKey) {
-    return new Response('App not found', { status: 404 });
+    return new Response(err ? `App not found: ${err}` : 'App not found', { status: 404 });
   }
 
   const requestIp = ip || '127.0.0.1';
