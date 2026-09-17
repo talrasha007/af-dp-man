@@ -20,7 +20,7 @@ function calcAfSig(devKey: string, afTimestamp: string, ip: string) {
 export const GET: APIRoute = async ({ url, locals: { runtime: { env: { PB_DB } } } }) => {
   const { app, gaid, idfa, ip, model, version } = Object.fromEntries(url.searchParams.entries());
 
-  const isIos = /^id\d+/.test(app) || /^\d+$/.test(app);
+  const isIos = /^id\d+$/.test(app) || /^\d+$/.test(app);
   const appId = isIos ? app.replace(/^id/, '') : app; // ios: pure numeric, used for lookup/insert/getDevKey
 
   let devKey = (await PB_DB.prepare('SELECT dev_key FROM apps WHERE app_id IN (?, ?)').bind(app, appId).first())?.dev_key as string | undefined;
