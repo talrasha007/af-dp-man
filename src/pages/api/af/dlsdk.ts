@@ -23,22 +23,27 @@ export const GET: APIRoute = async ({ url, locals: { runtime: { env: { PB_DB } }
   const isIos = /^id\d+$/.test(app) || /^\d+$/.test(app);
   const appId = isIos ? app.replace(/^id/, '') : app; // ios: pure numeric, used for lookup/insert/getDevKey
 
+  const baseId = appId.endsWith('-Custom') ? appId.slice(0, -'-Custom'.length) : null;
+  const dbDevKey = async () => (await PB_DB.prepare('SELECT dev_key FROM apps WHERE app_id IN (?, ?)').bind(app, appId).first())?.dev_key as string | undefined;
+
+  let devKey = await dbDevKey();
+  if (!devKey && baseId) {
+    // -Custom 查不到：复制不带 -Custom 的那行，以 -Custom 的 app_id 入库
+    await PB_DB.prepare('INSERT OR IGNORE INTO apps (app_id, app_name, dev_key) SELECT ?, app_name, dev_key FROM apps WHERE app_id = ?').bind(appId, baseId).run();
+    devKey = await dbDevKey();
+  }
   let err: unknown;
-  const findDevKey = async (id: string) => {
-    const row = await PB_DB.prepare('SELECT dev_key FROM apps WHERE app_id IN (?, ?)').bind(id === appId ? app : id, id).first();
-    if (row?.dev_key) return row.dev_key as string;
+  for (const id of baseId ? [appId, baseId] : [appId]) {
+    if (devKey) break;
     const path = `/tt/ddj/dlTask!getDevKey.do?appId=${encodeURIComponent(id)}`;
     const res = await httpGet('39.97.61.40', path)
       .then(t => JSON.parse(t) as { devKey?: string, code?: number })
       .catch(e => { err = `${path} -> ${e}`; return null; });
     if (res?.code === 1 && res.devKey) {
-      await PB_DB.prepare('INSERT OR IGNORE INTO apps (app_id, dev_key) VALUES (?, ?)').bind(appId, res.devKey).run();
-      return res.devKey;
+      devKey = res.devKey;
+      await PB_DB.prepare('INSERT OR IGNORE INTO apps (app_id, dev_key) VALUES (?, ?)').bind(appId, devKey).run();
     }
-  };
-
-  let devKey = await findDevKey(appId);
-  if (!devKey && appId.endsWith('-Custom')) devKey = await findDevKey(appId.slice(0, -'-Custom'.length));
+  }
   if (!devKey) {
     return new Response(err ? `App not found: ${err}` : 'App not found', { status: 404 });
   }
