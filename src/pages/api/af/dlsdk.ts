@@ -23,18 +23,22 @@ export const GET: APIRoute = async ({ url, locals: { runtime: { env: { PB_DB } }
   const isIos = /^id\d+$/.test(app) || /^\d+$/.test(app);
   const appId = isIos ? app.replace(/^id/, '') : app; // ios: pure numeric, used for lookup/insert/getDevKey
 
-  let devKey = (await PB_DB.prepare('SELECT dev_key FROM apps WHERE app_id IN (?, ?)').bind(app, appId).first())?.dev_key as string | undefined;
   let err: unknown;
-  if (!devKey) {
-    const path = `/tt/ddj/dlTask!getDevKey.do?appId=${encodeURIComponent(appId)}`;
+  const findDevKey = async (id: string) => {
+    const row = await PB_DB.prepare('SELECT dev_key FROM apps WHERE app_id IN (?, ?)').bind(id === appId ? app : id, id).first();
+    if (row?.dev_key) return row.dev_key as string;
+    const path = `/tt/ddj/dlTask!getDevKey.do?appId=${encodeURIComponent(id)}`;
     const res = await httpGet('39.97.61.40', path)
       .then(t => JSON.parse(t) as { devKey?: string, code?: number })
       .catch(e => { err = `${path} -> ${e}`; return null; });
     if (res?.code === 1 && res.devKey) {
-      devKey = res.devKey;
-      await PB_DB.prepare('INSERT OR IGNORE INTO apps (app_id, dev_key) VALUES (?, ?)').bind(appId, devKey).run();
+      await PB_DB.prepare('INSERT OR IGNORE INTO apps (app_id, dev_key) VALUES (?, ?)').bind(appId, res.devKey).run();
+      return res.devKey;
     }
-  }
+  };
+
+  let devKey = await findDevKey(appId);
+  if (!devKey && appId.endsWith('-Custom')) devKey = await findDevKey(appId.slice(0, -'-Custom'.length));
   if (!devKey) {
     return new Response(err ? `App not found: ${err}` : 'App not found', { status: 404 });
   }
